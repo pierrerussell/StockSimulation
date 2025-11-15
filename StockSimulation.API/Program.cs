@@ -1,7 +1,12 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using StockSimulation.Application.Companies;
+using StockSimulation.Application.Contracts.Companies;
+using StockSimulation.Database.Shared.Repositories;
+using StockSimulation.Domain.Companies;
 using StockSimulation.EfCore;
+using StockSimulation.EfCore.Companies;
 using StockSimulation.Stocks.FMP.Application.Companies;
 using StockSimulation.Stocks.FMP.Application.Contracts.Configurations;
 using StockSimulation.Stocks.Shared.Companies;
@@ -33,7 +38,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 
 builder.Services.AddScoped<ICompanySearchService, FMPCompanySearchService>();
+builder.Services.AddScoped<ICompanyAppService, CompanyAppService>();
 
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

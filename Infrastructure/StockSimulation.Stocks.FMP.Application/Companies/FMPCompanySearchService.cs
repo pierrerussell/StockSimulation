@@ -47,9 +47,27 @@ public class FMPCompanySearchService : ICompanySearchService
         return companyDtos;
     }
 
-    public Task<IEnumerable<CompanyDto>> SearchByName(string name)
+    public async Task<IEnumerable<CompanyDto>> SearchByName(string name)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation($"Searching for {name}");
+        string url = "search-name?query=" + name;
+        url = url.AddApiKey(_fmpOptions.Value.ApiKey);
+        Console.WriteLine(_httpClient.BaseAddress);
+        var response = await _httpClient.GetAsync(url);
+        var content = await response.Content.ReadAsStringAsync();
+        _logger.LogInformation(content);
+        var companies = JsonSerializer.Deserialize<List<Company>>(content);
+        var companyDtos = companies
+            .Select(x => new CompanyDto
+            {
+                Symbol = x.Symbol,
+                CompanyName = x.Name,
+                Currency = x.Currency,
+                ExchangeName = x.ExchangeFullName,
+                ExchangeSymbol = x.Exchange
+            });
+        
+        return companyDtos;
     }
     
 }

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StockSimulation.Application.Contracts.Companies;
 using StockSimulation.Domain.Companies;
@@ -18,6 +19,8 @@ public class CompanyAppService : ICompanyAppService
         ICompanyRepository companyRepository)
     {
         _companySearchService = companySearchService;
+        _companyRepository = companyRepository;
+        _logger = logger;
     }
 
 
@@ -27,6 +30,7 @@ public class CompanyAppService : ICompanyAppService
         // if in db return from there
         var queryable = _companyRepository.GetQueryable();
         var companies = queryable
+            .Where(company =>  EF.Functions.Like(company.CompanyName, $"%{symbol}%"))
             .Select(x => new CompanyDto()
             {
                 Symbol = x.Symbol,
@@ -35,7 +39,7 @@ public class CompanyAppService : ICompanyAppService
                 ExchangeName = x.ExchangeName,
                 ExchangeSymbol = x.ExchangeSymbol,
             })
-            .Where(company => company.Symbol == symbol)
+           
             .ToList();
         if (companies.Count != 0)
         {
@@ -53,7 +57,9 @@ public class CompanyAppService : ICompanyAppService
         ));
         // save in db then return;
         var result = await _companyRepository.UpsertManyAsync(newCompanies);
-        companies = result.Select(x => new CompanyDto()
+        companies = result
+            .Where(company =>  EF.Functions.Like(company.CompanyName, $"%{symbol}%"))
+            .Select(x => new CompanyDto()
             {
                 Symbol = x.Symbol,
                 CompanyName = x.CompanyName,
@@ -61,13 +67,52 @@ public class CompanyAppService : ICompanyAppService
                 ExchangeName = x.ExchangeName,
                 ExchangeSymbol = x.ExchangeSymbol,
             })
-            .Where(company => company.Symbol == symbol)
             .ToList();
         return companies;
     }
 
-    public Task<IEnumerable<CompanyDto>> GetByName(string name)
+    public async Task<IEnumerable<CompanyDto>> GetByName(string name)
     {
-        throw new NotImplementedException();
+        var queryable = _companyRepository.GetQueryable();
+        var companies = queryable
+            .Where(company => EF.Functions.Like(company.CompanyName, $"%{name}%"))
+            .Select(x => new CompanyDto()
+            {
+                Symbol = x.Symbol,
+                CompanyName = x.CompanyName,
+                Currency = x.Currency,
+                ExchangeName = x.ExchangeName,
+                ExchangeSymbol = x.ExchangeSymbol,
+            })
+   
+            .ToList();
+        if (companies.Count != 0)
+        {
+            return companies;
+        }
+        
+        // else search from fmp, throw in db
+        var externalCompanies = await _companySearchService.SearchByName(name);
+        var newCompanies = externalCompanies.Select(x => new Company(
+            x.CompanyName,
+            x.Symbol,
+            x.Currency,
+            x.ExchangeName,
+            x.ExchangeSymbol
+        ));
+        // save in db then return;
+        var result = await _companyRepository.UpsertManyAsync(newCompanies);
+        companies = result
+            .Where(company => EF.Functions.Like(company.CompanyName, $"%{name}%"))
+            .Select(x => new CompanyDto()
+            {
+                Symbol = x.Symbol,
+                CompanyName = x.CompanyName,
+                Currency = x.Currency,
+                ExchangeName = x.ExchangeName,
+                ExchangeSymbol = x.ExchangeSymbol,
+            })
+            .ToList();
+        return companies;
     }
 }

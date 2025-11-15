@@ -17,15 +17,18 @@ public class CompanyController : ControllerBase
         _companyAppService = companyAppService;
     }
 
-    [HttpGet]
-    public async Task<IEnumerable<CompanyDto>> GetBySymbol([FromQuery] string symbol)
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<CompanyDto>>> Search([FromQuery] string? symbol = null, [FromQuery] string? name = null)
     {
-        _logger.LogInformation($"Getting company symbol {symbol}");
-        
-        return await _companyAppService.GetBySymbol(
-            symbol
-        );
+
+        if (!string.IsNullOrEmpty(symbol))
+            return Ok(await _companyAppService.GetBySymbol(symbol));
+
+        if (!string.IsNullOrEmpty(name))
+            return Ok(await _companyAppService.GetByName(name));
+
+        return BadRequest("Provide either symbol or name");
     }
-    
     
 }

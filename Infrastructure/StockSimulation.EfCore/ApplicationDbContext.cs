@@ -8,7 +8,7 @@ namespace StockSimulation.EfCore;
 public class ApplicationDbContext : DbContext
 {
     
-    DbSet<Company>  Companies { get; set; }
+    public DbSet<Company> Companies { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -24,7 +24,7 @@ public class ApplicationDbContext : DbContext
         
         modelBuilder.Entity<StockPrice>()
             .HasKey(x => new {x.StockSymbol, x.ExchangeSymbol, x.Date});
-        modelBuilder.Entity<StockPrice>();
+       
 
 
     }
