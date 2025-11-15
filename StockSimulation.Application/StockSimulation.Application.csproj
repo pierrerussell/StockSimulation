@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Infrastructure\StockSimulation.Stocks.FMP.Application\StockSimulation.Stocks.FMP.Application.csproj" />
+      <ProjectReference Include="..\StockSimulation.Application.Contracts\StockSimulation.Application.Contracts.csproj" />
+      <ProjectReference Include="..\StockSimulation.Domain\StockSimulation.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
