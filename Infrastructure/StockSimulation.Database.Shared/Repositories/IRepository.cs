@@ -4,7 +4,8 @@ public interface IRepository<T> where T : class
 {
     IQueryable<T> GetQueryable();
     Task<T> AddAsync(T entity);
-    Task<T> UpdateAsync(T entity);
+    T Update(T entity);
     Task<IEnumerable<T>> UpsertManyAsync(IEnumerable<T> entities);
-    Task DeleteAsync(T entity);
+    void Delete(T entity);
+    Task SaveChangesAsync();
 }

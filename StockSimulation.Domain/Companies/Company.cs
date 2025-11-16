@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using StockSimulation.Domain.Prices;
+using StockSimulation.Domain.StockPrices;
 
 namespace StockSimulation.Domain.Companies;
 

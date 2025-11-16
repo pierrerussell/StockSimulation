@@ -10,15 +10,15 @@ namespace StockSimulation.Application.Companies;
 public class CompanyAppService : ICompanyAppService
 {
     private readonly ILogger<CompanyAppService> _logger;
-    private readonly ICompanySearchService _companySearchService;
+    private readonly ICompanySearchGateway _companySearchGateway;
     private readonly ICompanyRepository _companyRepository;
 
     public CompanyAppService(
         ILogger<CompanyAppService> logger,
-        ICompanySearchService companySearchService,
+        ICompanySearchGateway companySearchGateway,
         ICompanyRepository companyRepository)
     {
-        _companySearchService = companySearchService;
+        _companySearchGateway = companySearchGateway;
         _companyRepository = companyRepository;
         _logger = logger;
     }
@@ -47,7 +47,7 @@ public class CompanyAppService : ICompanyAppService
         }
         
         // else search from fmp, throw in db
-        var externalCompanies = await _companySearchService.SearchBySymbol(symbol);
+        var externalCompanies = await _companySearchGateway.SearchBySymbol(symbol);
         var newCompanies = externalCompanies.Select(x => new Company(
             x.CompanyName,
             x.Symbol,
@@ -68,6 +68,7 @@ public class CompanyAppService : ICompanyAppService
                 ExchangeSymbol = x.ExchangeSymbol,
             })
             .ToList();
+        await _companyRepository.SaveChangesAsync();
         return companies;
     }
 
@@ -92,7 +93,7 @@ public class CompanyAppService : ICompanyAppService
         }
         
         // else search from fmp, throw in db
-        var externalCompanies = await _companySearchService.SearchByName(name);
+        var externalCompanies = await _companySearchGateway.SearchByName(name);
         var newCompanies = externalCompanies.Select(x => new Company(
             x.CompanyName,
             x.Symbol,
@@ -113,6 +114,7 @@ public class CompanyAppService : ICompanyAppService
                 ExchangeSymbol = x.ExchangeSymbol,
             })
             .ToList();
+        await _companyRepository.SaveChangesAsync();
         return companies;
     }
 }

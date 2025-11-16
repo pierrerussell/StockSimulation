@@ -23,6 +23,17 @@ var fmpOptions = builder.Configuration.GetSection(FMPOptions.SectionName).Get<FM
 builder.Services.AddHttpClient(fmpOptions.HttpClientName, x =>
 {
     x.BaseAddress = new Uri(fmpOptions.BaseUrl);
+    x.Timeout = TimeSpan.FromSeconds(30);
+}) ;
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(x =>
+    {
+        x.AllowAnyHeader();
+        x.AllowAnyMethod();
+        x.AllowAnyOrigin();
+    });
 });
 
 // db set up
@@ -37,7 +48,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 
-builder.Services.AddScoped<ICompanySearchService, FMPCompanySearchService>();
+builder.Services.AddScoped<ICompanySearchGateway, FmpCompanySearchGateway>();
 builder.Services.AddScoped<ICompanyAppService, CompanyAppService>();
 
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
@@ -70,5 +81,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

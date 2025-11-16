@@ -21,43 +21,46 @@ public class CompanyRepository : ICompanyRepository
     public async Task<Company> AddAsync(Company entity)
     {
         var companies = _dbContext.Companies;
-        companies.Add(entity);
-        await _dbContext.SaveChangesAsync();
+        await companies.AddAsync(entity);
         return entity;
     }
 
-    public async Task<Company> UpdateAsync(Company entity)
+    public Company Update(Company entity)
     {
         var  companies =  _dbContext.Companies;
         companies.Update(entity);
-        await _dbContext.SaveChangesAsync();
         return entity;
     }
 
     public async Task<IEnumerable<Company>> UpsertManyAsync(IEnumerable<Company> entities)
     {
-        foreach (var company in entities)
+        var companiesList = entities.ToList();
+        var keys = companiesList.Select(c => new { c.Symbol, c.ExchangeSymbol }).ToList();
+        var existing = await _dbContext.Companies
+            .Where(c => keys.Any(k => k.Symbol == c.Symbol && k.ExchangeSymbol == c.ExchangeSymbol))
+            .ToListAsync();
+        foreach (var company in companiesList)
         {
-            var existing = await _dbContext.Companies.FirstOrDefaultAsync(c =>
-                c.Symbol == company.Symbol && c.ExchangeSymbol == company.ExchangeSymbol);
-
             if (existing != null)
             {
                 _dbContext.Entry(existing).CurrentValues.SetValues(company);
             }
             else
             {
-                await _dbContext.AddAsync(company);
+                await _dbContext.Companies.AddAsync(company);
             }
         }
-
-        await _dbContext.SaveChangesAsync();
+        
         return entities;
     }
 
-    public Task DeleteAsync(Company entity)
+    public void Delete(Company entity)
     {
         _dbContext.Companies.Remove(entity);
-        return _dbContext.SaveChangesAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _dbContext.SaveChangesAsync();
     }
 }

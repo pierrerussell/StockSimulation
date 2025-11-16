@@ -1,7 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-
-namespace StockSimulation.Domain.Prices;
+namespace StockSimulation.Domain.StockPrices;
 
 
 public class StockPrice
