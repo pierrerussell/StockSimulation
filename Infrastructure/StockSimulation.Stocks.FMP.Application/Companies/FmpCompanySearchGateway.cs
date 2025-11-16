@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using StockSimulation.Application.Contracts.Companies;
 using StockSimulation.Stocks.FMP.Application.Contracts.Configurations;
 using StockSimulation.Stocks.FMP.Domain.Companies;
-using StockSimulation.Stocks.Shared.Companies;
 
 namespace StockSimulation.Stocks.FMP.Application.Companies;
 
@@ -22,7 +22,7 @@ public class FmpCompanySearchGateway : ICompanySearchGateway
         _logger = logger;
     }
     
-    public async Task<IEnumerable<CompanyDto>> SearchBySymbol(string symbol)
+    public async Task<IEnumerable<StockSimulation.Domain.Companies.Company>> SearchBySymbol(string symbol)
     {
         try
         {
@@ -34,25 +34,23 @@ public class FmpCompanySearchGateway : ICompanySearchGateway
             var content = await response.Content.ReadAsStringAsync();
             _logger.LogInformation(content);
             var companies = JsonSerializer.Deserialize<List<Company>>(content);
-            var companyDtos = companies
-                .Select(x => new CompanyDto
-                {
-                    Symbol = x.Symbol,
-                    CompanyName = x.Name,
-                    Currency = x.Currency,
-                    ExchangeName = x.ExchangeFullName,
-                    ExchangeSymbol = x.Exchange
-                });
-            return companyDtos;
+            var companyList = companies
+                .Select(x => new StockSimulation.Domain.Companies.Company(
+                    x.Name,
+                    x.Symbol,
+                    x.Currency,
+                    x.ExchangeFullName,
+                    x.Exchange));
+            return companyList;
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "FMP API request for companies by symbol failed");
-            return new List<CompanyDto>();
+            return new List<StockSimulation.Domain.Companies.Company>();
         }
     }
 
-    public async Task<IEnumerable<CompanyDto>> SearchByName(string name)
+    public async Task<IEnumerable<StockSimulation.Domain.Companies.Company>> SearchByName(string name)
     {
         try
         {
@@ -64,22 +62,19 @@ public class FmpCompanySearchGateway : ICompanySearchGateway
             var content = await response.Content.ReadAsStringAsync();
             _logger.LogInformation(content);
             var companies = JsonSerializer.Deserialize<List<Company>>(content);
-            var companyDtos = companies
-                .Select(x => new CompanyDto
-                {
-                    Symbol = x.Symbol,
-                    CompanyName = x.Name,
-                    Currency = x.Currency,
-                    ExchangeName = x.ExchangeFullName,
-                    ExchangeSymbol = x.Exchange
-                });
-
-            return companyDtos;
+            var companyList = companies
+                .Select(x => new StockSimulation.Domain.Companies.Company(
+                    x.Name,
+                    x.Symbol,
+                    x.Currency,
+                    x.ExchangeFullName,
+                    x.Exchange));
+            return companyList;
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "FMP API request for companies by name failed");
-            return new List<CompanyDto>();
+            return new List<StockSimulation.Domain.Companies.Company>();
         }
 
 

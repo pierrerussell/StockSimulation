@@ -10,7 +10,6 @@
       <ProjectReference Include="..\..\StockSimulation.Application.Contracts\StockSimulation.Application.Contracts.csproj" />
       <ProjectReference Include="..\StockSimulation.Stocks.FMP.Application.Contracts\StockSimulation.Stocks.FMP.Application.Contracts.csproj" />
       <ProjectReference Include="..\StockSimulation.Stocks.FMP.Domain\StockSimulation.Stocks.FMP.Domain.csproj" />
-      <ProjectReference Include="..\StockSimulation.Stocks.Shared\StockSimulation.Stocks.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -3,13 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using StockSimulation.Application.Companies;
 using StockSimulation.Application.Contracts.Companies;
-using StockSimulation.Database.Shared.Repositories;
 using StockSimulation.Domain.Companies;
 using StockSimulation.EfCore;
 using StockSimulation.EfCore.Companies;
 using StockSimulation.Stocks.FMP.Application.Companies;
 using StockSimulation.Stocks.FMP.Application.Contracts.Configurations;
-using StockSimulation.Stocks.Shared.Companies;
 
 var builder = WebApplication.CreateBuilder(args);
 

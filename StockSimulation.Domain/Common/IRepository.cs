@@ -1,4 +1,4 @@
-namespace StockSimulation.Database.Shared.Repositories;
+namespace StockSimulation.Domain.Common;
 
 public interface IRepository<T> where T : class
 {

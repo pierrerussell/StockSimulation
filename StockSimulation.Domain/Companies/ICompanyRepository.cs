@@ -1,4 +1,4 @@
-using StockSimulation.Database.Shared.Repositories;
+using StockSimulation.Domain.Common;
 
 namespace StockSimulation.Domain.Companies;
 
