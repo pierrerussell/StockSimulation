@@ -1,13 +1,18 @@
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using StockSimulation.Application.Companies;
+using StockSimulation.Application.Contracts;
 using StockSimulation.Application.Contracts.Companies;
+using StockSimulation.Application.Contracts.StockPrices;
+using StockSimulation.Application.StockPrices;
 using StockSimulation.Domain.Companies;
+using StockSimulation.Domain.StockPrices;
 using StockSimulation.EfCore;
 using StockSimulation.EfCore.Companies;
+using StockSimulation.EfCore.StockPrices;
 using StockSimulation.Stocks.FMP.Application.Companies;
 using StockSimulation.Stocks.FMP.Application.Contracts.Configurations;
+using StockSimulation.Stocks.FMP.Application.StockPrices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +54,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ICompanySearchGateway, FmpCompanySearchGateway>();
 builder.Services.AddScoped<ICompanyAppService, CompanyAppService>();
 
+builder.Services.AddScoped<IStockPriceAppService, StockPriceAppService>();
+builder.Services.AddScoped<IStockPriceImportGateway, FmpStockPriceImportGateway>();
+
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IStockPriceRepository, StockPriceRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace StockSimulation.Stocks.FMP.Domain.Companies;
 
-public class Company
+public class FmpCompany
 {
     [JsonPropertyName("symbol")]
     public string Symbol { get; set; }

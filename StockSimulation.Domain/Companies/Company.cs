@@ -5,8 +5,10 @@ namespace StockSimulation.Domain.Companies;
 
 public class Company
 {
-    public string CompanyName { get; set; }
+    [Key]
     public string Symbol { get; set; }
+    
+    public string CompanyName { get; set; }
     public string Currency { get; set; }
     public string ExchangeName { get; set; }
     public string ExchangeSymbol { get; set; }
@@ -16,10 +18,10 @@ public class Company
     
     protected Company() {}
 
-    public Company(string companyName, string symbol, string currency, string exchangeName, string exchangeSymbol)
+    public Company(string symbol, string companyName, string currency, string exchangeName, string exchangeSymbol)
     {
-        CompanyName = companyName;
         Symbol = symbol;
+        CompanyName = companyName;
         Currency = currency;
         ExchangeName = exchangeName;
         ExchangeSymbol = exchangeSymbol;

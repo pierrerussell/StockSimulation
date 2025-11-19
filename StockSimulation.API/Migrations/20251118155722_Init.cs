@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StockSimulation.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,48 +16,48 @@ namespace StockSimulation.API.Migrations
                 columns: table => new
                 {
                     Symbol = table.Column<string>(type: "TEXT", nullable: false),
-                    ExchangeSymbol = table.Column<string>(type: "TEXT", nullable: false),
                     CompanyName = table.Column<string>(type: "TEXT", nullable: false),
                     Currency = table.Column<string>(type: "TEXT", nullable: false),
-                    ExchangeName = table.Column<string>(type: "TEXT", nullable: false)
+                    ExchangeName = table.Column<string>(type: "TEXT", nullable: false),
+                    ExchangeSymbol = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Companies", x => new { x.Symbol, x.ExchangeSymbol });
+                    table.PrimaryKey("PK_Companies", x => x.Symbol);
                 });
 
             migrationBuilder.CreateTable(
-                name: "StockPrice",
+                name: "StockPrices",
                 columns: table => new
                 {
                     StockSymbol = table.Column<string>(type: "TEXT", nullable: false),
-                    ExchangeSymbol = table.Column<string>(type: "TEXT", nullable: false),
                     Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    Price = table.Column<float>(type: "REAL", nullable: false),
-                    CompanyExchangeSymbol = table.Column<string>(type: "TEXT", nullable: true),
-                    CompanySymbol = table.Column<string>(type: "TEXT", nullable: true)
+                    Open = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Close = table.Column<decimal>(type: "TEXT", nullable: false),
+                    High = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Low = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Volume = table.Column<int>(type: "INTEGER", nullable: false),
+                    Change = table.Column<decimal>(type: "TEXT", nullable: false),
+                    ChangePercent = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Vwap = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StockPrice", x => new { x.StockSymbol, x.ExchangeSymbol, x.Date });
+                    table.PrimaryKey("PK_StockPrices", x => new { x.StockSymbol, x.Date });
                     table.ForeignKey(
-                        name: "FK_StockPrice_Companies_CompanySymbol_CompanyExchangeSymbol",
-                        columns: x => new { x.CompanySymbol, x.CompanyExchangeSymbol },
+                        name: "FK_StockPrices_Companies_StockSymbol",
+                        column: x => x.StockSymbol,
                         principalTable: "Companies",
-                        principalColumns: new[] { "Symbol", "ExchangeSymbol" });
+                        principalColumn: "Symbol",
+                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StockPrice_CompanySymbol_CompanyExchangeSymbol",
-                table: "StockPrice",
-                columns: new[] { "CompanySymbol", "CompanyExchangeSymbol" });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "StockPrice");
+                name: "StockPrices");
 
             migrationBuilder.DropTable(
                 name: "Companies");

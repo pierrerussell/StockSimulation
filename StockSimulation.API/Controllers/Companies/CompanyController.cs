@@ -21,7 +21,10 @@ public class CompanyController : ControllerBase
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<CompanyDto>>> Search([FromQuery] string? symbol = null, [FromQuery] string? name = null)
     {
-
+        _logger.LogInformation($"Searching for companies {symbol} {name}");
+        if (!string.IsNullOrEmpty(symbol) && !string.IsNullOrEmpty(name))
+            return BadRequest("Provide only either symbol OR name");
+        
         if (!string.IsNullOrEmpty(symbol))
             return Ok(await _companyAppService.GetBySymbol(symbol));
 

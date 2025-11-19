@@ -22,9 +22,6 @@ namespace StockSimulation.API.Migrations
                     b.Property<string>("Symbol")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ExchangeSymbol")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -37,43 +34,59 @@ namespace StockSimulation.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Symbol", "ExchangeSymbol");
+                    b.Property<string>("ExchangeSymbol")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Symbol");
 
                     b.ToTable("Companies");
                 });
 
-            modelBuilder.Entity("StockSimulation.Domain.Prices.StockPrice", b =>
+            modelBuilder.Entity("StockSimulation.Domain.StockPrices.StockPrice", b =>
                 {
                     b.Property<string>("StockSymbol")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExchangeSymbol")
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CompanyExchangeSymbol")
+                    b.Property<decimal>("Change")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CompanySymbol")
+                    b.Property<decimal>("ChangePercent")
                         .HasColumnType("TEXT");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("REAL");
+                    b.Property<decimal>("Close")
+                        .HasColumnType("TEXT");
 
-                    b.HasKey("StockSymbol", "ExchangeSymbol", "Date");
+                    b.Property<decimal>("High")
+                        .HasColumnType("TEXT");
 
-                    b.HasIndex("CompanySymbol", "CompanyExchangeSymbol");
+                    b.Property<decimal>("Low")
+                        .HasColumnType("TEXT");
 
-                    b.ToTable("StockPrice");
+                    b.Property<decimal>("Open")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Volume")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Vwap")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("StockSymbol", "Date");
+
+                    b.ToTable("StockPrices", (string)null);
                 });
 
-            modelBuilder.Entity("StockSimulation.Domain.Prices.StockPrice", b =>
+            modelBuilder.Entity("StockSimulation.Domain.StockPrices.StockPrice", b =>
                 {
                     b.HasOne("StockSimulation.Domain.Companies.Company", null)
                         .WithMany("StockPrices")
-                        .HasForeignKey("CompanySymbol", "CompanyExchangeSymbol");
+                        .HasForeignKey("StockSymbol")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("StockSimulation.Domain.Companies.Company", b =>

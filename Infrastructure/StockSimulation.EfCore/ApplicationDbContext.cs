@@ -19,14 +19,15 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Company>()
-            .HasKey(x => new { x.Symbol, x.ExchangeSymbol });
+            .HasKey(x => x.Symbol);
         modelBuilder.Entity<Company>()
-            .HasMany(x => x.StockPrices);
+            .HasMany(x => x.StockPrices)
+            .WithOne()
+            .HasForeignKey(sp => sp.StockSymbol);
         
         modelBuilder.Entity<StockPrice>()
-            .HasKey(x => new {x.StockSymbol, x.ExchangeSymbol, x.Date});
-       
-
+            .ToTable("StockPrices")
+            .HasKey(x => new {x.StockSymbol, x.Date});
 
     }
 }

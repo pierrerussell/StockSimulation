@@ -33,11 +33,11 @@ public class FmpCompanySearchGateway : ICompanySearchGateway
             var response = await _httpClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
             _logger.LogInformation(content);
-            var companies = JsonSerializer.Deserialize<List<Company>>(content);
+            var companies = JsonSerializer.Deserialize<List<FmpCompany>>(content);
             var companyList = companies
                 .Select(x => new StockSimulation.Domain.Companies.Company(
-                    x.Name,
                     x.Symbol,
+                    x.Name,
                     x.Currency,
                     x.ExchangeFullName,
                     x.Exchange));
@@ -57,15 +57,13 @@ public class FmpCompanySearchGateway : ICompanySearchGateway
             _logger.LogInformation($"Searching for {name}");
             string url = "search-name?query=" + name;
             url = url.AddApiKey(_fmpOptions.Value.ApiKey);
-            Console.WriteLine(_httpClient.BaseAddress);
             var response = await _httpClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation(content);
-            var companies = JsonSerializer.Deserialize<List<Company>>(content);
+            var companies = JsonSerializer.Deserialize<List<FmpCompany>>(content);
             var companyList = companies
                 .Select(x => new StockSimulation.Domain.Companies.Company(
-                    x.Name,
                     x.Symbol,
+                    x.Name,
                     x.Currency,
                     x.ExchangeFullName,
                     x.Exchange));

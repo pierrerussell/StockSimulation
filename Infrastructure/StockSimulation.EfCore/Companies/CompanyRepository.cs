@@ -35,23 +35,37 @@ public class CompanyRepository : ICompanyRepository
     public async Task<IEnumerable<Company>> UpsertManyAsync(IEnumerable<Company> entities)
     {
         var companiesList = entities.ToList();
-        var keys = companiesList.Select(c => new { c.Symbol, c.ExchangeSymbol }).ToList();
-        var existing = await _dbContext.Companies
-            .Where(c => keys.Any(k => k.Symbol == c.Symbol && k.ExchangeSymbol == c.ExchangeSymbol))
+        if (!companiesList.Any())
+        {
+            return companiesList;
+        }
+
+        var keys = companiesList.Select(c => c.Symbol).ToList();
+        var existingCompanies = await _dbContext.Companies
+            .Where(c => keys.Contains(c.Symbol))
             .ToListAsync();
+
+        // Create a dictionary for quick lookup
+        var existingDict = existingCompanies.ToDictionary(c => c.Symbol, c => c);
+        
         foreach (var company in companiesList)
         {
-            if (existing != null)
+            if (existingDict.TryGetValue(company.Symbol, out var existingCompany))
             {
-                _dbContext.Entry(existing).CurrentValues.SetValues(company);
+                // Update existing company
+                existingCompany.CompanyName = company.CompanyName;
+                existingCompany.Currency = company.Currency;
+                existingCompany.ExchangeName = company.ExchangeName;
+                existingCompany.ExchangeSymbol = company.ExchangeSymbol;
             }
             else
             {
+                // Add new company
                 await _dbContext.Companies.AddAsync(company);
             }
         }
         
-        return entities;
+        return companiesList;
     }
 
     public void Delete(Company entity)

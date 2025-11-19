@@ -29,7 +29,7 @@ public class CompanyAppService : ICompanyAppService
         // if in db return from there
         var queryable = _companyRepository.GetQueryable();
         var companies = queryable
-            .Where(company =>  EF.Functions.Like(company.CompanyName, $"%{symbol}%"))
+            .Where(company =>  EF.Functions.Like(company.Symbol, $"%{symbol}%"))
             .Select(x => new CompanyDto()
             {
                 Symbol = x.Symbol,
@@ -50,7 +50,7 @@ public class CompanyAppService : ICompanyAppService
         // save in db then return;
         var result = await _companyRepository.UpsertManyAsync(externalCompanies);
         companies = result
-            .Where(company =>  EF.Functions.Like(company.CompanyName, $"%{symbol}%"))
+            .Where(company => company.Symbol.Contains(symbol, StringComparison.OrdinalIgnoreCase))
             .Select(x => new CompanyDto()
             {
                 Symbol = x.Symbol,
@@ -88,7 +88,7 @@ public class CompanyAppService : ICompanyAppService
         // save in db then return;
         var result = await _companyRepository.UpsertManyAsync(externalCompanies);
         companies = result
-            .Where(company => EF.Functions.Like(company.CompanyName, $"%{name}%"))
+            .Where(company => company.CompanyName.Contains(name, StringComparison.OrdinalIgnoreCase))
             .Select(x => new CompanyDto()
             {
                 Symbol = x.Symbol,
