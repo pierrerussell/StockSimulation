@@ -29,13 +29,19 @@ builder.Services.AddHttpClient(fmpOptions.HttpClientName, x =>
     x.Timeout = TimeSpan.FromSeconds(30);
 }) ;
 
+
+var corsOrigins = builder.Configuration.GetSection("App:CorsOrigins").Get<string[]>();
+foreach (var corsOrigin in corsOrigins)
+{
+    Console.WriteLine($"CorsOrigin: {corsOrigin}");
+}
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(x =>
     {
         x.AllowAnyHeader();
         x.AllowAnyMethod();
-        x.AllowAnyOrigin();
+        x.WithOrigins(corsOrigins);
     });
 });
 
