@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using StockSimulation.Application.Contracts;
 using StockSimulation.Application.Contracts.StockPrices;
 using StockSimulation.Domain.Companies;
 using StockSimulation.Domain.StockPrices;
@@ -27,69 +26,56 @@ public class StockPriceAppService : IStockPriceAppService
         _companyRepository = companyRepository;
         _stockPriceImportGateway = stockPriceImportGateway;
     }
-
-
+    
     public async Task<IEnumerable<StockPriceDto>> GetStockPrices(string symbol, int years = 2)
     {
-        // look in db for the given stock.
-        var companyQueryable = _companyRepository.GetQueryable();
-        var company = await companyQueryable
-            .FirstOrDefaultAsync(x => x.Symbol == symbol); 
-         
-        if  (company == null) throw new Exception("Company not found");
+        // check the company exists
+        var company = await _companyRepository.GetQueryable()
+            .FirstOrDefaultAsync(x => x.Symbol == symbol);
+        if (company == null) throw new Exception($"Company not found: {symbol}");
+
+        // if latest stock price date is < yesterday, pull new data from gateway
+        await EnsureDataIsFresh(symbol);
         
-        var stockPriceQueryable = _stockPriceRepository.GetQueryable();
-        
-        // check if the earliest stock price retrieved was yesterday. if not, 
-        // pull in the necessary
-        var latestStockPrice = await stockPriceQueryable
+        var cutoffDate = DateOnly.FromDateTime(DateTime.Today.AddYears(-years));
+        var stockPrices = await _stockPriceRepository.GetQueryable()
+            .Where(x => x.StockSymbol == symbol && x.Date >= cutoffDate)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+
+        return MapToDto(stockPrices);
+    }
+
+    private async Task EnsureDataIsFresh(string symbol)
+    {
+        var latestPrice = await _stockPriceRepository.GetQueryable()
             .Where(x => x.StockSymbol == symbol)
             .OrderByDescending(x => x.Date)
             .FirstOrDefaultAsync();
-        if (latestStockPrice != null && latestStockPrice.Date == DateOnly.FromDateTime(DateTime.Today.AddDays(-1)))
-        {
-            var stockPrices = await stockPriceQueryable
-                .Where(x => x.Date >= DateOnly.FromDateTime(DateTime.Today).AddYears(-years))
-                .ToListAsync();
 
-            var stockPriceDtos = stockPrices
-                .Select(x => new StockPriceDto()
-                {
-                    High = x.High,
-                    Low = x.Low,
-                    Volume = x.Volume,
-                    StockSymbol = x.StockSymbol,
-                    Close = x.Close,
-                    Open = x.Open,
-                    Date = x.Date,
-                });
+        var yesterday = DateOnly.FromDateTime(DateTime.Today.AddDays(-1));
+        if (latestPrice?.Date >= yesterday) return;
 
-            return stockPriceDtos;
-        }
+        var pullFromDate = latestPrice?.Date.AddDays(1) 
+            ?? DateOnly.FromDateTime(DateTime.Today.AddYears(-5));
 
-        var pullFromDate = latestStockPrice != null ?
-            latestStockPrice.Date.AddDays(1) :
-            DateOnly.FromDateTime(DateTime.Today.AddYears(-5));
-        
-        _logger.LogInformation($"couldnt find stockprices in db, hitting fmp");
-        var prices = await _stockPriceImportGateway.GetStockPricesAsync(symbol, pullFromDate);
-        await _stockPriceRepository.UpsertManyAsync(prices);
+        _logger.LogInformation($"Updating stock prices for {symbol} from {pullFromDate}");
+        var newPrices = await _stockPriceImportGateway.GetStockPricesAsync(symbol, pullFromDate);
+        await _stockPriceRepository.UpsertManyAsync(newPrices);
         await _stockPriceRepository.SaveChangesAsync();
-        return prices
-            .OrderByDescending(p => p.Date)
-            .Select(x => new StockPriceDto()
-            {
-                High = x.High,
-                Low = x.Low,
-                Volume = x.Volume,
-                StockSymbol = x.StockSymbol,
-                Close = x.Close,
-                Open = x.Open,
-                Date = x.Date
-            });
+    }
 
-
-
-
+    private IEnumerable<StockPriceDto> MapToDto(IEnumerable<StockPrice> prices)
+    {
+        return prices.Select(x => new StockPriceDto
+        {
+            StockSymbol = x.StockSymbol,
+            Date = x.Date,
+            Open = x.Open,
+            Close = x.Close,
+            High = x.High,
+            Low = x.Low,
+            Volume = x.Volume
+        });
     }
 }
